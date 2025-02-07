@@ -5,15 +5,16 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="cnn_feature_extractor",
-    version="0.1.0",
+    version="0.1.1",
     author="ITU Perceptron",
     author_email="ituperceptron@gmail.com",
     description="Automatic CNN feature extraction and ML model comparison",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/ituperceptron/cnn_feature_extractor",
-    packages=find_packages(where="src"),
     package_dir={"": "src"},
+    packages=find_packages(where="src", include=["cnn_feature_extractor*"]),
+    include_package_data=True,
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
