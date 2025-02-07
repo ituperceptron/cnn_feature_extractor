@@ -1,4 +1,4 @@
-# cnn_feature_extractor
+# CNN Feature Extractor
 
 A Python package for automatic CNN feature extraction and ML model comparison. Extract features from images using pre-trained CNN models and evaluate multiple ML classifiers in one go.
 
@@ -61,8 +61,17 @@ extractor = CNNFeatureExtractor(save_path='cifar10_results.csv')
 results = extractor.fit(
     train_loader, 
     val_loader,
-    cnn_models=['resnet18', 'efficientnet_b0'],
-    ml_models=['LogisticRegression']
+
+    # Example 1: Using specific models
+    cnn_models=['resnet18', 'efficientnet_b0'],    
+
+    # Example 2: Using the tiny package (fastest, good for testing)
+    # cnn_models='tiny',  # This will use: mobilenet_v2, mobilenet_v3_small, efficientnet_b0, convnext_tiny, resnet18
+
+    # Example 3: Mixing packages
+    # cnn_models='tiny + small',  # This will combine models from both packages
+    
+    ml_models=['RandomForest', 'LogisticRegression']
 )
 ```
 
@@ -112,22 +121,22 @@ extractor = CNNFeatureExtractor(save_path='results.csv')
 results = extractor.fit(
     train_loader, 
     val_loader,
-    cnn_models=['resnet18', 'efficientnet_b0'],  # Choose CNN models
-    ml_models=['RandomForest', 'LogisticRegression']  # Choose ML models
+
+    # Example 1: Using specific models
+    cnn_models=['resnet18', 'efficientnet_b0'],    
+
+    # Example 2: Using the tiny package (fastest, good for testing)
+    # cnn_models='tiny',  # This will use: mobilenet_v2, mobilenet_v3_small, efficientnet_b0, convnext_tiny, resnet18
+
+    # Example 3: Mixing packages
+    # cnn_models='tiny + small',  # This will combine models from both packages
+    
+    ml_models=['RandomForest', 'LogisticRegression']
 )
 
 # Results will be saved to 'results.csv'
 print(results)
 ```
-
-## Features
-
-- 🔄 Support for multiple CNN architectures (ResNet, EfficientNet, etc.)
-- 🤖 Multiple ML classifiers (LogisticRegression, RandomForest, etc.)
-- 📊 Automatic feature extraction and model evaluation
-- 🎯 GPU acceleration when available
-- 📈 Data augmentation support
-- 💾 Results saved to CSV file
 
 ## Available Models
 
@@ -204,11 +213,6 @@ print(results)
    - GPU is automatically used if available
    - CNN feature extraction is significantly faster on GPU
    - Some ML models (XGBoost, LightGBM) can also use GPU
-
-## Author
-
-**ITU Perceptron**
-- Email: ituperceptron@gmail.com
 
 ## License
 
