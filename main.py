@@ -31,7 +31,7 @@ if __name__ == '__main__':
     train_loader, val_loader, num_classes = load_custom_dataset(
         data_dir=r"C:\Users\hasan\Desktop\mri-data",
         batch_size=32,
-        num_workers=4,  # Reduced number of workers for stability
+        num_workers=2,  # Reduced number of workers as suggested by warning
         image_size=image_size,
         augment=True  # Enable data augmentation
     )
@@ -47,6 +47,6 @@ if __name__ == '__main__':
     results = extractor.fit(
         train_loader, 
         val_loader, 
-        cnn_models=['resnet18'],  # Start with one model to test
-        ml_models=['LogisticRegression']  # Start with one model to test
+        cnn_models=['resnet18', 'efficientnet_b0'],  # Try both models
+        ml_models=['LogisticRegression', 'RandomForest']  # Try both models
     ) 

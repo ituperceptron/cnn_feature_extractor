@@ -64,7 +64,7 @@ def load_custom_dataset(data_dir, batch_size=32, num_workers=4, image_size=224, 
         transform = get_data_augmentation_transforms(image_size=image_size)
     else:
         transform = transforms.Compose([
-            transforms.Resize(image_size),
+            transforms.Resize((image_size, image_size)),  # Resize to fixed dimensions
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
