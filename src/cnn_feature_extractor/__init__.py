@@ -137,5 +137,5 @@ class CNNFeatureExtractor:
         self.metrics.print_final_results()
         return self.metrics.results
 
-__version__ = "0.1.0"
+__version__ = "0.1.2"
 __all__ = ['CNNFeatureExtractor', 'get_default_transform', 'load_custom_dataset'] 
