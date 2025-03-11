@@ -29,7 +29,7 @@ if __name__ == '__main__':
     
     # Load custom dataset with data augmentation
     train_loader, val_loader, num_classes = load_custom_dataset(
-        data_dir=r"C:\Users\hasan\Desktop\mri-data",
+        data_dir=r"data\mri-data",
         batch_size=32,
         num_workers=2,  # Reduced number of workers as suggested by warning
         image_size=image_size,
@@ -41,12 +41,15 @@ if __name__ == '__main__':
     print(f"Validation samples: {len(val_loader.dataset)}")
     
     # Initialize feature extractor
-    extractor = CNNFeatureExtractor(verbose=True)
+    extractor = CNNFeatureExtractor(
+        verbose=True,
+        models_dir="models"  # Specify directory for saving models
+    )
     
     # Run feature extraction and ML comparison
     results = extractor.fit(
         train_loader, 
         val_loader, 
-        cnn_models=['resnet18', 'efficientnet_b0'],  # Try both models
-        ml_models=['LogisticRegression', 'RandomForest']  # Try both models
+        cnn_models=['efficientnet_b0'],  # Try both models
+        ml_models=['LogisticRegression']  # Try both models
     ) 

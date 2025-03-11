@@ -12,11 +12,13 @@ from tqdm import tqdm
 import torch
 from torchvision import models
 import time
+import os
+import joblib
 
 class CNNFeatureExtractor:
     """Automatic CNN feature extraction and ML model comparison."""
     
-    def __init__(self, verbose=True, ignore_warnings=True, save_path='results.csv'):
+    def __init__(self, verbose=True, ignore_warnings=True, save_path='results.csv', models_dir='saved_models'):
         if ignore_warnings:
             import warnings
             warnings.filterwarnings('ignore')
@@ -24,6 +26,11 @@ class CNNFeatureExtractor:
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.classifiers = get_classifiers()
         self.metrics = MetricsTracker(save_path)
+        self.models_dir = models_dir
+        
+        # Create model directory if it doesn't exist
+        if not os.path.exists(self.models_dir):
+            os.makedirs(self.models_dir)
         
         # Print device information
         print("\n=== Device Information ===")
@@ -70,6 +77,7 @@ class CNNFeatureExtractor:
         print(f"Number of CNN models to try: {len(cnn_models)}")
         print(f"Number of ML models to try: {len(ml_models)}")
         print(f"Total combinations: {len(cnn_models) * len(ml_models)}")
+        print(f"Models will be saved to: {self.models_dir}")
         
         start_time = time.time()
 
@@ -80,6 +88,15 @@ class CNNFeatureExtractor:
             try:
                 # Extract features
                 extractor = BaseCNNExtractor(cnn_name)
+                
+                # Save CNN model
+                cnn_dir = os.path.join(self.models_dir, "cnn_models")
+                if not os.path.exists(cnn_dir):
+                    os.makedirs(cnn_dir)
+                cnn_path = os.path.join(cnn_dir, f"{cnn_name}_model.pt")
+                torch.save(extractor.model.state_dict(), cnn_path)
+                if self.verbose:
+                    print(f"✅ Saved CNN model: {cnn_path}")
                 
                 # Process training data
                 train_features, train_labels = [], []
@@ -114,11 +131,23 @@ class CNNFeatureExtractor:
                         clf = self.classifiers[ml_name]
                         clf.fit(train_features, train_labels)
                         
-                        # Calculate and save metrics
+                        # Calculate metrics
                         metrics = self.metrics.calculate_metrics(
                             clf, val_features, val_labels, 
                             cnn_name, ml_name, start_time
                         )
+                        
+                        # Save ML model
+                        ml_dir = os.path.join(self.models_dir, "ml_models")
+                        if not os.path.exists(ml_dir):
+                            os.makedirs(ml_dir)
+                        
+                        # Add accuracy to filename if available
+                        accuracy = metrics['Accuracy'] if metrics and 'Accuracy' in metrics else 0
+                        ml_path = os.path.join(ml_dir, f"{cnn_name}_{ml_name}_acc{accuracy:.4f}.joblib")
+                        joblib.dump(clf, ml_path)
+                        if self.verbose:
+                            print(f"✅ Saved ML model: {ml_path}")
                         
                         # Print metrics
                         self.metrics.print_metrics(metrics, self.verbose)
@@ -135,7 +164,12 @@ class CNNFeatureExtractor:
         
         # Print final results
         self.metrics.print_final_results()
+        
+        print(f"\n✅ All models saved to: {self.models_dir}")
+        print(f"  • CNN models: {os.path.join(self.models_dir, 'cnn_models')}")
+        print(f"  • ML models: {os.path.join(self.models_dir, 'ml_models')}")
+        
         return self.metrics.results
 
-__version__ = "0.1.2"
+__version__ = "0.2.0"
 __all__ = ['CNNFeatureExtractor', 'get_default_transform', 'load_custom_dataset'] 
