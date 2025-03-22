@@ -18,6 +18,7 @@ dataset/
 from cnn_feature_extractor import CNNFeatureExtractor
 from cnn_feature_extractor.utils.dataset import load_custom_dataset
 import torch
+import os
 
 if __name__ == '__main__':
     # Set device
@@ -29,7 +30,7 @@ if __name__ == '__main__':
     
     # Load custom dataset with data augmentation
     train_loader, val_loader, num_classes = load_custom_dataset(
-        data_dir=r"C:\Users\hasan\Desktop\mri-data",
+        data_dir=r"data\bt_veri_seti",
         batch_size=32,
         num_workers=2,  # Reduced number of workers as suggested by warning
         image_size=image_size,
@@ -40,6 +41,10 @@ if __name__ == '__main__':
     print(f"Training samples: {len(train_loader.dataset)}")
     print(f"Validation samples: {len(val_loader.dataset)}")
     
+    # Ensure model saving directories exist
+    os.makedirs('ml_models', exist_ok=True)
+    os.makedirs('cnn_models', exist_ok=True)
+    
     # Initialize feature extractor
     extractor = CNNFeatureExtractor(verbose=True)
     
@@ -47,6 +52,10 @@ if __name__ == '__main__':
     results = extractor.fit(
         train_loader, 
         val_loader, 
-        cnn_models=['resnet18', 'efficientnet_b0'],  # Try both models
-        ml_models=['LogisticRegression', 'RandomForest']  # Try both models
-    ) 
+        cnn_models=['efficientnet_b0'],  # Try specific CNN models
+        ml_models=['LogisticRegression']  # Try specific ML models
+    )
+    
+    print("\nModels have been saved to:")
+    print(f"- CNN models: {os.path.abspath('cnn_models')}")
+    print(f"- ML models: {os.path.abspath('ml_models')}") 

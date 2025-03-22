@@ -12,6 +12,9 @@ from tqdm import tqdm
 import torch
 from torchvision import models
 import time
+import os
+import pickle
+import joblib
 
 class CNNFeatureExtractor:
     """Automatic CNN feature extraction and ML model comparison."""
@@ -24,6 +27,10 @@ class CNNFeatureExtractor:
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.classifiers = get_classifiers()
         self.metrics = MetricsTracker(save_path)
+        
+        # Create directories for saving models if they don't exist
+        os.makedirs('ml_models', exist_ok=True)
+        os.makedirs('cnn_models', exist_ok=True)
         
         # Print device information
         print("\n=== Device Information ===")
@@ -53,6 +60,22 @@ class CNNFeatureExtractor:
     def get_transform():
         """Get the default transform for images."""
         return get_default_transform()
+        
+    def save_model(self, model, model_name, model_type, metrics=None):
+        """Save trained model to disk."""
+        if model_type == 'ml':
+            save_path = os.path.join('ml_models', f"{model_name}.pkl")
+            joblib.dump(model, save_path)
+        elif model_type == 'cnn':
+            save_path = os.path.join('cnn_models', f"{model_name}.pth")
+            torch.save(model.state_dict(), save_path)
+            
+        if self.verbose:
+            print(f"✅ Saved {model_type} model to {save_path}")
+            if metrics:
+                print(f"   Model accuracy: {metrics['Accuracy']:.4f}")
+        
+        return save_path
 
     def fit(self, train_loader, val_loader, cnn_models='biggest', ml_models=None):
         """Extract features using CNNs and evaluate multiple ML models."""
@@ -72,6 +95,10 @@ class CNNFeatureExtractor:
         print(f"Total combinations: {len(cnn_models) * len(ml_models)}")
         
         start_time = time.time()
+        best_ml_model = None
+        best_accuracy = 0
+        best_ml_name = None
+        best_cnn_name = None
 
         for cnn_name in tqdm(cnn_models, desc="CNN Models"):
             if self.verbose:
@@ -80,6 +107,9 @@ class CNNFeatureExtractor:
             try:
                 # Extract features
                 extractor = BaseCNNExtractor(cnn_name)
+                
+                # Save CNN feature extractor
+                self.save_model(extractor.model, cnn_name, 'cnn')
                 
                 # Process training data
                 train_features, train_labels = [], []
@@ -120,6 +150,17 @@ class CNNFeatureExtractor:
                             cnn_name, ml_name, start_time
                         )
                         
+                        # Save the trained ML model
+                        model_name = f"{cnn_name}_{ml_name}"
+                        self.save_model(clf, model_name, 'ml', metrics)
+                        
+                        # Track best model
+                        if metrics and metrics['Accuracy'] > best_accuracy:
+                            best_accuracy = metrics['Accuracy']
+                            best_ml_model = clf
+                            best_ml_name = ml_name
+                            best_cnn_name = cnn_name
+                        
                         # Print metrics
                         self.metrics.print_metrics(metrics, self.verbose)
                             
@@ -135,6 +176,17 @@ class CNNFeatureExtractor:
         
         # Print final results
         self.metrics.print_final_results()
+        
+        # Save best model separately
+        if best_ml_model:
+            best_model_path = self.save_model(
+                best_ml_model, 
+                f"best_{best_cnn_name}_{best_ml_name}", 
+                'ml',
+                {'Accuracy': best_accuracy}
+            )
+            print(f"\n✅ Best model saved to: {best_model_path}")
+            
         return self.metrics.results
 
 __version__ = "0.1.2"

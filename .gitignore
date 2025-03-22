@@ -36,6 +36,7 @@ ENV/
 
 # Dataset and results
 data/
+data/bt_veri_seti/
 results/
 *.csv
 *.pth

@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="cnn_feature_extractor",
-    version="0.1.2",
+    version="0.1.3",
     author="ITU Perceptron",
     author_email="ituperceptron@gmail.com",
     description="Automatic CNN feature extraction and ML model comparison",
