@@ -19,7 +19,7 @@ import joblib
 class CNNFeatureExtractor:
     """Automatic CNN feature extraction and ML model comparison."""
     
-    def __init__(self, verbose=True, ignore_warnings=True, save_path='results.csv'):
+    def __init__(self, verbose=True, ignore_warnings=True, save_path='results.csv', models_dir='saved_models'):
         if ignore_warnings:
             import warnings
             warnings.filterwarnings('ignore')
@@ -93,6 +93,7 @@ class CNNFeatureExtractor:
         print(f"Number of CNN models to try: {len(cnn_models)}")
         print(f"Number of ML models to try: {len(ml_models)}")
         print(f"Total combinations: {len(cnn_models) * len(ml_models)}")
+        print(f"Models will be saved to: {self.models_dir}")
         
         start_time = time.time()
         best_ml_model = None
@@ -144,7 +145,7 @@ class CNNFeatureExtractor:
                         clf = self.classifiers[ml_name]
                         clf.fit(train_features, train_labels)
                         
-                        # Calculate and save metrics
+                        # Calculate metrics
                         metrics = self.metrics.calculate_metrics(
                             clf, val_features, val_labels, 
                             cnn_name, ml_name, start_time
@@ -189,5 +190,5 @@ class CNNFeatureExtractor:
             
         return self.metrics.results
 
-__version__ = "0.1.2"
+__version__ = "0.2.0"
 __all__ = ['CNNFeatureExtractor', 'get_default_transform', 'load_custom_dataset'] 

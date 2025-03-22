@@ -46,7 +46,10 @@ if __name__ == '__main__':
     os.makedirs('cnn_models', exist_ok=True)
     
     # Initialize feature extractor
-    extractor = CNNFeatureExtractor(verbose=True)
+    extractor = CNNFeatureExtractor(
+        verbose=True,
+        models_dir="models"  # Specify directory for saving models
+    )
     
     # Run feature extraction and ML comparison
     results = extractor.fit(

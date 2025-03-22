@@ -214,6 +214,29 @@ print(results)
    - CNN feature extraction is significantly faster on GPU
    - Some ML models (XGBoost, LightGBM) can also use GPU
 
+## Saving Models
+
+The package automatically saves all trained models to a directory for future use.
+
+```python
+from cnn_feature_extractor import CNNFeatureExtractor
+
+# Models will be saved to 'my_models' directory
+extractor = CNNFeatureExtractor(save_path='results.csv', models_dir='my_models')
+
+# Run feature extraction and ML comparison
+results = extractor.fit(
+    train_loader, 
+    val_loader,
+    cnn_models=['resnet18', 'efficientnet_b0'],    
+    ml_models=['RandomForest', 'LogisticRegression']
+)
+
+# Models are saved in the specified directory:
+# - CNN models: my_models/cnn_models/
+# - ML models: my_models/ml_models/
+```
+
 ## License
 
 MIT License 
